@@ -140,7 +140,7 @@ int main(void) {
             for (int k = 0; words[i][k]; k++) add_letter(words[i][k]);
         for (int k = 0; result_word[k]; k++) add_letter(result_word[k]);
 
-        /* Ќќ¬ќ≈: определ€ем буквы, которые не могут быть нул€ми */
+        /* ќѕ“»ћ»«ј÷»я 1 определ€ем буквы, которые не могут быть нул€ми */
         memset(is_leading, 0, sizeof is_leading);
         for (int i = 0; i < n_addends; i++) {
             if (strlen(words[i]) > 1)
@@ -148,6 +148,43 @@ int main(void) {
         }
         if (strlen(result_word) > 1)
             is_leading[letter_index(result_word[0])] = 1;
+
+        /* ќѕ“»ћ»«ј÷»я 2 (—ќ–“»–ќ¬ ј) */
+        int freq[MAX_LETTERS] = { 0 };
+        // —читаем частоту каждой буквы
+        for (int i = 0; i < n_addends; i++) {
+            for (int k = 0; words[i][k]; k++) {
+                freq[letter_index(words[i][k])]++;
+            }
+        }
+        for (int k = 0; result_word[k]; k++) {
+            freq[letter_index(result_word[k])]++;
+        }
+
+        // —ортируем пузырьком (букв максимум 10, это мгновенно)
+        for (int i = 0; i < n_letters - 1; i++) {
+            for (int j = i + 1; j < n_letters; j++) {
+                // ѕриоритет: 100 баллов если буква ведуща€ + еЄ частота
+                int score_i = (is_leading[i] ? 100 : 0) + freq[i];
+                int score_j = (is_leading[j] ? 100 : 0) + freq[j];
+
+                if (score_j > score_i) {
+                    // ћен€ем местами сами буквы
+                    char tmp_c = letters[i];
+                    letters[i] = letters[j];
+                    letters[j] = tmp_c;
+
+                    // ќ„≈Ќ№ ¬ј∆Ќќ: мен€ем местами их флаги ведущих и частоту!
+                    int tmp_i = is_leading[i];
+                    is_leading[i] = is_leading[j];
+                    is_leading[j] = tmp_i;
+
+                    int tmp_f = freq[i];
+                    freq[i] = freq[j];
+                    freq[j] = tmp_f;
+                }
+            }
+        }
 
         memset(used_digit, 0, sizeof used_digit);
 

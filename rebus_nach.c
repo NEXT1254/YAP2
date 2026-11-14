@@ -16,6 +16,7 @@ static char letters[MAX_LETTERS];      /* список уникальных букв */
 static int  n_letters;
 static int  digit_of[MAX_LETTERS];     /* индекс буквы -> цифра */
 static int  used_digit[10];            /* зан€тые цифры */
+static int  is_leading[MAX_LETTERS]; /* Ќќ¬ќ≈: флаг, что буква не может быть 0 */
 
 /* ---------- разбор входа ---------- */
 
@@ -101,6 +102,10 @@ static int solve_rec(int pos) {
     if (pos == n_letters) return check_solution();
     for (int d = 0; d <= 9; d++) {
         if (used_digit[d]) continue;
+
+        /* ќѕ“»ћ»«ј÷»я 1: ранний отсев ведущих нулей */
+        if (d == 0 && is_leading[pos]) continue;
+
         used_digit[d] = 1;
         digit_of[pos] = d;
         if (solve_rec(pos + 1)) return 1;   /* нашли Ч выходим */
@@ -134,6 +139,15 @@ int main(void) {
         for (int i = 0; i < n_addends; i++)
             for (int k = 0; words[i][k]; k++) add_letter(words[i][k]);
         for (int k = 0; result_word[k]; k++) add_letter(result_word[k]);
+
+        /* Ќќ¬ќ≈: определ€ем буквы, которые не могут быть нул€ми */
+        memset(is_leading, 0, sizeof is_leading);
+        for (int i = 0; i < n_addends; i++) {
+            if (strlen(words[i]) > 1)
+                is_leading[letter_index(words[i][0])] = 1;
+        }
+        if (strlen(result_word) > 1)
+            is_leading[letter_index(result_word[0])] = 1;
 
         memset(used_digit, 0, sizeof used_digit);
 
